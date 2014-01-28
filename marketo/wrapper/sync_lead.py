@@ -3,25 +3,22 @@ import xml.etree.ElementTree as ET
 import lead_record
 
 
-def wrap(email=None, attributes=None):
-    attr = ''
-    for i in attributes:
-        attr += '<attribute>' \
-            '<attrName>' + i[0] + '</attrName>' \
-            '<attrType>' + i[1] + '</attrType>' \
-            '<attrValue>' + i[2] + '</attrValue>' \
-            '</attribute>'
+def wrap(email, attributes=()):
+    tmpl = "<attribute>" \
+           "<attrName>%s</attrName>" \
+           "<attrType>%s</attrType>" \
+           "<attrValue>%s</attrValue>" \
+           "</attribute>"
+    attr = "".join(tmpl % (name, typ, value) for name, typ, value in attributes)
 
-    return(
-        '<mkt:paramsSyncLead>' +
-        '<leadRecord>' +
-        '<Email>' + email + '</Email>' +
-        '<leadAttributeList>' + attr + '</leadAttributeList>' +
-        '</leadRecord>' +
-        '<returnLead>true</returnLead>' +
-        '<marketoCookie></marketoCookie>' +
-        '</mkt:paramsSyncLead>'
-    )
+    return "<mkt:paramsSyncLead>" \
+           "<leadRecord>" \
+           "<Email>%s</Email>" \
+           "<leadAttributeList>%s</leadAttributeList>" \
+           "</leadRecord>" \
+           "<returnLead>true</returnLead>" \
+           "<marketoCookie></marketoCookie>" \
+           "</mkt:paramsSyncLead>" % (email, attr)
 
 
 def unwrap(response):

@@ -1,16 +1,14 @@
-
 import xml.etree.ElementTree as ET
 import lead_activity
 
 
-def wrap(email=None):
-    return (
-        '<ns1:paramsGetLeadActivity>' +
-            '<leadKey>' +
-                '<keyType>EMAIL</keyType>' +
-                '<keyValue>' + email + '</keyValue>' +
-            '</leadKey>' +
-        '</ns1:paramsGetLeadActivity>')
+def wrap(email):
+    return "<ns1:paramsGetLeadActivity>" \
+           "<leadKey>" \
+           "<keyType>EMAIL</keyType>" \
+           "<keyValue>%s</keyValue>" \
+           "</leadKey>" \
+           "</ns1:paramsGetLeadActivity>" % email
 
 
 def unwrap(response):

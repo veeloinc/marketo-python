@@ -1,22 +1,36 @@
-
 import unittest
 
-import marketo
-import marketo.auth
+from mock import patch
+
+from marketo import auth
+from marketo import Client
 from marketo.wrapper import get_lead
 from marketo.wrapper import get_lead_activity
 from marketo.wrapper import sync_lead
 
 
-class MarketoBasicTests(unittest.TestCase):
+class TestAuth(unittest.TestCase):
 
-    def test_auth(self):
-        # From Marketo example"
-        user_id = "bigcorp1_461839624B16E06BA2D663"
-        encryption_key = "899756834129871744AAEE88DDCC77CDEEDEC1AAAD66"
-        timestamp = "2010-04-09T14:04:54-07:00"
-        signature = "ffbff4d4bef354807481e66dc7540f7890523a87"
-        self.assertTrue(marketo.auth.sign(timestamp + user_id, encryption_key) == signature)
+    def test_header(self):
+        user_id = "_user_id_"
+        encryption_key = "_encryption_key_"
+        timestamp = "_timestamp_"
+        signature = "_signature_"
+
+        with patch("marketo.rfc3339.rfc3339", return_value=timestamp):
+            with patch("marketo.auth.sign", return_value=signature):
+                actual_result = auth.header(user_id, encryption_key)
+
+        expected_result = "<env:Header>" \
+                          "<ns1:AuthenticationHeader>" \
+                          "<mktowsUserId>%s</mktowsUserId>" \
+                          "<requestSignature>%s</requestSignature>" \
+                          "<requestTimestamp>%s</requestTimestamp>" \
+                          "</ns1:AuthenticationHeader>" \
+                          "</env:Header>" % (user_id, signature, timestamp)
+
+        self.assertEqual(actual_result,
+                         expected_result)
 
 
 class TestGetLead(unittest.TestCase):
@@ -105,6 +119,39 @@ class TestSyncLead(unittest.TestCase):
                          "<returnLead>true</returnLead>"
                          "<marketoCookie></marketoCookie>"
                          "</mkt:paramsSyncLead>")
+
+
+class TestClient(unittest.TestCase):
+
+    def test_instanciate(self):
+        with self.assertRaises(ValueError):
+            client = Client()
+
+    def test_wrap(self):
+        soap_endpoint = "_soap_endpoint_"
+        user_id = "_user_id_"
+        encryption_key = "_encryption_key_"
+        client = Client(soap_endpoint=soap_endpoint, user_id=user_id, encryption_key=encryption_key)
+        body = "<body/>"
+        header = "<header/>"
+
+        with patch("marketo.auth.header", return_value=header):
+            actual_result = client.wrap(body=body)
+
+        self.assertEqual(actual_result,
+                         '<?xml version="1.0" encoding="UTF-8"?>'
+                         '<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" '
+                         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                         'xmlns:wsdl="http://www.marketo.com/mktows/" '
+                         'xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" '
+                         'xmlns:ins0="http://www.marketo.com/mktows/" '
+                         'xmlns:ns1="http://www.marketo.com/mktows/" '
+                         'xmlns:mkt="http://www.marketo.com/mktows/">'
+                         '%s'
+                         '<env:Body>'
+                         '%s'
+                         '</env:Body>'
+                         '</env:Envelope>' % (header, body))
 
 
 if __name__ == '__main__':

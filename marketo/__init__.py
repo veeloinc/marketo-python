@@ -28,20 +28,20 @@ class Client:
         self.encryption_key = encryption_key
 
     def wrap(self, body):
-        return (
-            '<?xml version="1.0" encoding="UTF-8"?>' +
-            '<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" ' +
-                          'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
-                          'xmlns:wsdl="http://www.marketo.com/mktows/" ' +
-                          'xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" ' +
-                          'xmlns:ins0="http://www.marketo.com/mktows/" ' +
-                          'xmlns:ns1="http://www.marketo.com/mktows/" ' +
-                          'xmlns:mkt="http://www.marketo.com/mktows/">' +
-                auth.header(self.user_id, self.encryption_key) +
-                '<env:Body>' +
-                    body +
-                '</env:Body>' +
-            '</env:Envelope>')
+        return '<?xml version="1.0" encoding="UTF-8"?>' \
+               '<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" ' \
+               'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' \
+               'xmlns:wsdl="http://www.marketo.com/mktows/" ' \
+               'xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" ' \
+               'xmlns:ins0="http://www.marketo.com/mktows/" ' \
+               'xmlns:ns1="http://www.marketo.com/mktows/" ' \
+               'xmlns:mkt="http://www.marketo.com/mktows/">' \
+               '%(header)s' \
+               '<env:Body>' \
+               '%(body)s' \
+               '</env:Body>' \
+               '</env:Envelope>' % {"header": auth.header(self.user_id, self.encryption_key),
+                                    "body": body}
 
     def request(self, body):
         envelope = self.wrap(body)

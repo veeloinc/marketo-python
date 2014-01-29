@@ -1,7 +1,8 @@
-from rfc3339 import rfc3339
 import hmac
 import hashlib
 import datetime
+
+import rfc3339
 
 
 def sign(message, encryption_key):
@@ -10,11 +11,10 @@ def sign(message, encryption_key):
 
 
 def header(user_id, encryption_key):
-    timestamp = rfc3339(datetime.datetime.now())
+    timestamp = rfc3339.rfc3339(datetime.datetime.now())
     signature = sign(timestamp + user_id, encryption_key)
-    return (
-        '<env:Header><ns1:AuthenticationHeader>' +
-              '<mktowsUserId>' + user_id + '</mktowsUserId>' +
-              '<requestSignature>' + signature + '</requestSignature>' +
-              '<requestTimestamp>' + timestamp + '</requestTimestamp>' +
-        '</ns1:AuthenticationHeader></env:Header>')
+    return "<env:Header><ns1:AuthenticationHeader>" \
+           "<mktowsUserId>%s</mktowsUserId>" \
+           "<requestSignature>%s</requestSignature>" \
+           "<requestTimestamp>%s</requestTimestamp>" \
+           "</ns1:AuthenticationHeader></env:Header>" % (user_id, signature, timestamp)

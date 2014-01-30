@@ -7,6 +7,7 @@ from marketo import auth
 from marketo import Client
 from marketo.wrapper import get_lead
 from marketo.wrapper import get_lead_activity
+from marketo.wrapper import request_campaign
 from marketo.wrapper import sync_lead
 
 
@@ -56,6 +57,22 @@ class TestGetLeadActivity(unittest.TestCase):
                          u"<keyValue>john@do.com</keyValue>"
                          u"</leadKey>"
                          u"</ns1:paramsGetLeadActivity>")
+
+
+class TestRequestCampaign(unittest.TestCase):
+
+    def test_request_campaign_wrap(self):
+        self.assertEqual(request_campaign.wrap(campaign=1, lead='2'),
+                         u'<mkt:paramsRequestCampaign>'
+                         u'<source>MKTOWS</source>'
+                         u'<campaignId>1</campaignId>'
+                         u'<leadList>'
+                         u'<leadKey>'
+                         u'<keyType>IDNUM</keyType>'
+                         u'<keyValue>2</keyValue>'
+                         u'</leadKey>'
+                         u'</leadList>'
+                         u'</mkt:paramsRequestCampaign>')
 
 
 class TestSyncLead(unittest.TestCase):

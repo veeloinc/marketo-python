@@ -123,10 +123,6 @@ class TestSyncLead(unittest.TestCase):
 
 class TestClient(unittest.TestCase):
 
-    def test_instanciate(self):
-        with self.assertRaises(ValueError):
-            client = Client()
-
     def test_wrap(self):
         soap_endpoint = "_soap_endpoint_"
         user_id = "_user_id_"

@@ -12,17 +12,7 @@ from marketo.wrapper import get_lead, get_lead_activity, request_campaign, sync_
 
 class Client:
 
-    def __init__(self, soap_endpoint=None, user_id=None, encryption_key=None):
-
-        if not soap_endpoint or not isinstance(soap_endpoint, str):
-            raise ValueError('Must supply a soap_endpoint as a non empty string.')
-
-        if not user_id or not isinstance(user_id, (str, unicode)):
-            raise ValueError('Must supply a user_id as a non empty string.')
-
-        if not encryption_key or not isinstance(encryption_key, str):
-            raise ValueError('Must supply a encryption_key as a non empty string.')
-
+    def __init__(self, soap_endpoint, user_id, encryption_key):
         self.soap_endpoint = soap_endpoint
         self.user_id = user_id
         self.encryption_key = encryption_key
@@ -45,12 +35,12 @@ class Client:
 
     def request(self, body):
         envelope = self.wrap(body)
-        response = requests.post(self.soap_endpoint, data=envelope,
-            headers={
-                'Connection': 'Keep-Alive',
-                'Soapaction': '',
-                'Content-Type': 'text/xml;charset=UTF-8',
-                'Accept': '*/*'})
+        response = requests.post(self.soap_endpoint,
+                                 data=envelope,
+                                 headers={'Connection': 'Keep-Alive',
+                                          'Soapaction': '',
+                                          'Content-Type': 'text/xml;charset=UTF-8',
+                                          'Accept': '*/*'})
         return response
 
     def get_lead(self, email=None):

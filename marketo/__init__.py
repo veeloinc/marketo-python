@@ -18,25 +18,26 @@ class Client:
         self.encryption_key = encryption_key
 
     def wrap(self, body):
-        return '<?xml version="1.0" encoding="UTF-8"?>' \
-               '<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" ' \
-               'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' \
-               'xmlns:wsdl="http://www.marketo.com/mktows/" ' \
-               'xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" ' \
-               'xmlns:ins0="http://www.marketo.com/mktows/" ' \
-               'xmlns:ns1="http://www.marketo.com/mktows/" ' \
-               'xmlns:mkt="http://www.marketo.com/mktows/">' \
-               '%(header)s' \
-               '<env:Body>' \
-               '%(body)s' \
-               '</env:Body>' \
-               '</env:Envelope>' % {"header": auth.header(self.user_id, self.encryption_key),
-                                    "body": body}
+        return u'<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" ' \
+               u'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' \
+               u'xmlns:wsdl="http://www.marketo.com/mktows/" ' \
+               u'xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" ' \
+               u'xmlns:ins0="http://www.marketo.com/mktows/" ' \
+               u'xmlns:ns1="http://www.marketo.com/mktows/" ' \
+               u'xmlns:mkt="http://www.marketo.com/mktows/">' \
+               u'{header}' \
+               u'<env:Body>' \
+               u'{body}' \
+               u'</env:Body>' \
+               u'</env:Envelope>'.format(header=auth.header(self.user_id, self.encryption_key),
+                                         body=body)
 
     def request(self, body):
-        envelope = self.wrap(body)
+        envelope = self.wrap(body).encode("utf-8")
+        data = '<?xml version="1.0" encoding="UTF-8"?>' \
+               '{envelope}'.format(envelope=envelope)
         response = requests.post(self.soap_endpoint,
-                                 data=envelope,
+                                 data=data,
                                  headers={'Connection': 'Keep-Alive',
                                           'Soapaction': '',
                                           'Content-Type': 'text/xml;charset=UTF-8',

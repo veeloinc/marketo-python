@@ -4,21 +4,21 @@ import lead_record
 
 
 def wrap(email, attributes=()):
-    tmpl = "<attribute>" \
-           "<attrName>%s</attrName>" \
-           "<attrType>%s</attrType>" \
-           "<attrValue>%s</attrValue>" \
-           "</attribute>"
-    attr = "".join(tmpl % (name, typ, value) for name, typ, value in attributes)
+    tmpl = u"<attribute>" \
+           u"<attrName>{name}</attrName>" \
+           u"<attrType>{typ}</attrType>" \
+           u"<attrValue>{value}</attrValue>" \
+           u"</attribute>"
+    attr = "".join(tmpl.format(name=name, typ=typ, value=value) for name, typ, value in attributes)
 
-    return "<mkt:paramsSyncLead>" \
-           "<leadRecord>" \
-           "<Email>%s</Email>" \
-           "<leadAttributeList>%s</leadAttributeList>" \
-           "</leadRecord>" \
-           "<returnLead>true</returnLead>" \
-           "<marketoCookie></marketoCookie>" \
-           "</mkt:paramsSyncLead>" % (email, attr)
+    return u"<mkt:paramsSyncLead>" \
+           u"<leadRecord>" \
+           u"<Email>{email}</Email>" \
+           u"<leadAttributeList>{attributes}</leadAttributeList>" \
+           u"</leadRecord>" \
+           u"<returnLead>true</returnLead>" \
+           u"<marketoCookie></marketoCookie>" \
+           u"</mkt:paramsSyncLead>".format(email=email, attributes=attr)
 
 
 def unwrap(response):

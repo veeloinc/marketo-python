@@ -3,12 +3,12 @@ import lead_activity
 
 
 def wrap(email):
-    return "<ns1:paramsGetLeadActivity>" \
-           "<leadKey>" \
-           "<keyType>EMAIL</keyType>" \
-           "<keyValue>%s</keyValue>" \
-           "</leadKey>" \
-           "</ns1:paramsGetLeadActivity>" % email
+    return u"<ns1:paramsGetLeadActivity>" \
+           u"<leadKey>" \
+           u"<keyType>EMAIL</keyType>" \
+           u"<keyValue>{email}</keyValue>" \
+           u"</leadKey>" \
+           u"</ns1:paramsGetLeadActivity>".format(email=email)
 
 
 def unwrap(response):

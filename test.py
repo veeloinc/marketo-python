@@ -5,6 +5,7 @@ from mock import patch
 
 from marketo import auth
 from marketo import Client
+from marketo.wrapper import exceptions
 from marketo.wrapper import get_lead
 from marketo.wrapper import get_lead_activity
 from marketo.wrapper import request_campaign
@@ -33,6 +34,53 @@ class TestAuth(unittest.TestCase):
 
         self.assertEqual(actual_result,
                          expected_result)
+
+
+class TestExceptionParser(unittest.TestCase):
+
+    def test_non_xml_message(self):
+        exception_message = 'Non XML message'
+        exception_instance = exceptions.unwrap(exception_message)
+
+        self.assertTrue(isinstance(exception_instance, exceptions.MktException))
+        self.assertEqual(exception_instance.args, ("Marketo exception message parsing error: %s" % exception_message, ))
+
+    def test_fault_with_details(self):
+        exception_message = '<?xml version="1.0" encoding="UTF-8"?>' \
+                            '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">' \
+                            '<SOAP-ENV:Body>' \
+                            '<SOAP-ENV:Fault>' \
+                            '<faultcode>SOAP-ENV:Client</faultcode>' \
+                            '<faultstring>20103 - Lead not found</faultstring>' \
+                            '<detail>' \
+                            '<ns1:serviceException xmlns:ns1="http://www.marketo.com/mktows/">' \
+                            '<name>mktServiceException</name>' \
+                            '<message>No lead found with EMAIL = john@do.com (20103)</message>' \
+                            '<code>20103</code>' \
+                            '</ns1:serviceException>' \
+                            '</detail>' \
+                            '</SOAP-ENV:Fault>' \
+                            '</SOAP-ENV:Body>' \
+                            '</SOAP-ENV:Envelope>'
+        exception_instance = exceptions.unwrap(exception_message)
+
+        self.assertTrue(isinstance(exception_instance, exceptions.MktLeadNotFound))
+        self.assertEqual(exception_instance.args, ("No lead found with EMAIL = john@do.com (20103)", ))
+
+    def test_fault_without_details(self):
+        exception_message = '<?xml version="1.0" encoding="UTF-8"?>' \
+                            '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">' \
+                            '<SOAP-ENV:Body>' \
+                            '<SOAP-ENV:Fault>' \
+                            '<faultcode>SOAP-ENV:Client</faultcode>' \
+                            '<faultstring>Bad Request</faultstring>' \
+                            '</SOAP-ENV:Fault>' \
+                            '</SOAP-ENV:Body>' \
+                            '</SOAP-ENV:Envelope>'
+        exception_instance = exceptions.unwrap(exception_message)
+
+        self.assertTrue(isinstance(exception_instance, exceptions.MktException))
+        self.assertEqual(exception_instance.args, ("Bad Request", ))
 
 
 class TestGetLead(unittest.TestCase):

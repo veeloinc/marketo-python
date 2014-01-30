@@ -86,11 +86,18 @@ class TestExceptionParser(unittest.TestCase):
 class TestGetLead(unittest.TestCase):
 
     def test_get_lead_wrap(self):
-        self.assertEqual(get_lead.wrap("john@do.com"),
+        self.assertEqual(get_lead.wrap(email="john@do.com"),
                          u"<ns1:paramsGetLead>"
                          u"<leadKey>"
                          u"<keyType>EMAIL</keyType>"
                          u"<keyValue>john@do.com</keyValue>"
+                         u"</leadKey>"
+                         u"</ns1:paramsGetLead>")
+        self.assertEqual(get_lead.wrap(cookie="561-HYG-937&token:_mch-marketo.com-1258067434006-50277"),
+                         u"<ns1:paramsGetLead>"
+                         u"<leadKey>"
+                         u"<keyType>COOKIE</keyType>"
+                         u"<keyValue>561-HYG-937&amp;token:_mch-marketo.com-1258067434006-50277</keyValue>"
                          u"</leadKey>"
                          u"</ns1:paramsGetLead>")
 

@@ -1,14 +1,18 @@
+import cgi
 import xml.etree.ElementTree as ET
+
 import lead_record
 
 
-def wrap(email):
+def wrap(**kwargs):
+    key_type, key_value = kwargs.items()[0]
+    key_value = cgi.escape(unicode(key_value))
     return u"<ns1:paramsGetLead>" \
            u"<leadKey>" \
-           u"<keyType>EMAIL</keyType>" \
-           u"<keyValue>{email}</keyValue>" \
+           u"<keyType>{key_type}</keyType>" \
+           u"<keyValue>{key_value}</keyValue>" \
            u"</leadKey>" \
-           u"</ns1:paramsGetLead>".format(email=email)
+           u"</ns1:paramsGetLead>".format(key_type=key_type.upper(), key_value=key_value)
 
 
 def unwrap(response):

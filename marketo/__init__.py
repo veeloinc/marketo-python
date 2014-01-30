@@ -7,6 +7,7 @@ __version__ = VERSION
 import requests
 import auth
 
+from marketo.wrapper import exceptions
 from marketo.wrapper import get_lead, get_lead_activity, request_campaign, sync_lead
 
 
@@ -44,17 +45,21 @@ class Client:
                                           'Accept': '*/*'})
         return response
 
-    def get_lead(self, email=None):
+    def get_lead(self, **kwargs):
+        """
+        This function retrieves a single lead record from Marketo.
+        If the lead exists based on the input parameters, the lead record attributes will be returned in the result.
+        Possible keytypes: email, idnum, cookie, sfdcleadid, leaderownermail...
+        To see the full list go http://developers.marketo.com/documentation/soap/getlead/
 
-        if not email or not isinstance(email, (str, unicode)):
-            raise ValueError('Must supply an email as a non empty string.')
-
-        body = get_lead.wrap(email)
+        For example: get_lead(email='john@do.com')
+        """
+        body = get_lead.wrap(**kwargs)
         response = self.request(body)
         if response.status_code == 200:
             return get_lead.unwrap(response)
         else:
-            raise Exception(response.text)
+            raise exceptions.unwrap(response.text)
 
     def get_lead_activity(self, email=None):
 

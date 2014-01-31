@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from mock import patch
+from mock import patch, Mock
 
 from marketo import auth
 from marketo import Client
@@ -86,14 +86,14 @@ class TestExceptionParser(unittest.TestCase):
 class TestGetLead(unittest.TestCase):
 
     def test_get_lead_wrap(self):
-        self.assertEqual(get_lead.wrap(email="john@do.com"),
+        self.assertEqual(get_lead.wrap("email", "john@do.com"),
                          u"<ns1:paramsGetLead>"
                          u"<leadKey>"
                          u"<keyType>EMAIL</keyType>"
                          u"<keyValue>john@do.com</keyValue>"
                          u"</leadKey>"
                          u"</ns1:paramsGetLead>")
-        self.assertEqual(get_lead.wrap(cookie="561-HYG-937&token:_mch-marketo.com-1258067434006-50277"),
+        self.assertEqual(get_lead.wrap("cookie", "561-HYG-937&token:_mch-marketo.com-1258067434006-50277"),
                          u"<ns1:paramsGetLead>"
                          u"<leadKey>"
                          u"<keyType>COOKIE</keyType>"
@@ -211,6 +211,44 @@ class TestClient(unittest.TestCase):
                          u'{body}'
                          u'</env:Body>'
                          u'</env:Envelope>'.format(header=header, body=body))
+
+    def test_get_lead_with_not_found(self):
+        soap_endpoint = "_soap_endpoint_"
+        user_id = "_user_id_"
+        encryption_key = "_encryption_key_"
+        client = Client(soap_endpoint=soap_endpoint, user_id=user_id, encryption_key=encryption_key)
+
+        mock_response = Mock(status_code=0, text="<root>"
+                                                 "<detail>"
+                                                 "<message>No lead found with IDNUM = 1 (20103)</message>"
+                                                 "<code>20103</code>"
+                                                 "</detail>"
+                                                 "</root>")
+        try:
+            with patch.object(client, "request", return_value=mock_response):
+                client.get_lead(idnum=1)
+        except exceptions.MktLeadNotFound as e:
+            self.assertEqual(str(e), "No lead found with IDNUM = 1 (20103)")
+        except Exception as e:
+            self.assertTrue(isinstance(e, exceptions.MktLeadNotFound), repr(e))
+
+    def test_get_lead_with_found(self):
+        soap_endpoint = "_soap_endpoint_"
+        user_id = "_user_id_"
+        encryption_key = "_encryption_key_"
+        client = Client(soap_endpoint=soap_endpoint, user_id=user_id, encryption_key=encryption_key)
+
+        mock_response = Mock(status_code=200, text="<root>"
+                                                   "<leadRecord>"
+                                                   "<Id>100</Id>"
+                                                   "<Email>john@do.com</Email>"
+                                                   "</leadRecord>"
+                                                   "</root>")
+        with patch.object(client, "request", return_value=mock_response):
+            lead = client.get_lead(email="john@do.com")
+
+        self.assertEqual(lead.id, 100)
+        self.assertEqual(lead.email, "john@do.com")
 
 
 if __name__ == '__main__':

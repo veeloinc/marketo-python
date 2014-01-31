@@ -4,8 +4,7 @@ import xml.etree.ElementTree as ET
 import lead_record
 
 
-def wrap(**kwargs):
-    key_type, key_value = kwargs.items()[0]
+def wrap(key_type, key_value):
     key_value = cgi.escape(unicode(key_value))
     return u"<ns1:paramsGetLead>" \
            u"<leadKey>" \
@@ -16,6 +15,6 @@ def wrap(**kwargs):
 
 
 def unwrap(response):
-    root = ET.fromstring(response.text)
+    root = ET.fromstring(response)
     lead_record_xml = root.find('.//leadRecord')
     return lead_record.unwrap(lead_record_xml)

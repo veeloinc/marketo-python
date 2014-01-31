@@ -14,7 +14,7 @@ class LeadRecord:
 
 def unwrap(xml):
     lead = LeadRecord()
-    lead.id = xml.find('Id').text
+    lead.id = int(xml.find('Id').text)
     lead.email = xml.find('Email').text
 
     for attribute in xml.findall('.//attribute'):

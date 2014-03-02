@@ -184,6 +184,14 @@ class TestSyncLead(unittest.TestCase):
                          u"<marketoCookie></marketoCookie>"
                          u"</mkt:paramsSyncLead>")
 
+class TestGetCampaignsForSource(unittest.TestCase):
+    def test_wrap(self):
+        pass
+class TestGetTags(unittest.TestCase):
+    def test_wrap(self):
+        pass
+# TODO 2014-03-01: Figure out what call to make to get a list of leads on a campaign
+
 
 class TestClient(unittest.TestCase):
 

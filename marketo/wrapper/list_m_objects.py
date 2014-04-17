@@ -1,8 +1,4 @@
-import cgi
 import xml.etree.ElementTree as ET
-
-import lead_record
-
 
 def wrap():
     return u"<ns1:paramsListMObjects/>"

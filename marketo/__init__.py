@@ -8,7 +8,11 @@ import requests
 import auth
 
 from marketo.wrapper import exceptions
-from marketo.wrapper import get_lead, get_lead_activity, get_campaigns_for_source, sync_lead, list_m_objects
+from marketo.wrapper import (
+    get_lead, get_lead_activity, sync_lead,
+    get_campaigns_for_source,
+    list_m_objects, get_m_objects,
+)
 
 
 class Client:
@@ -105,6 +109,16 @@ class Client:
             return get_campaigns_for_source.unwrap(response)
         else:
             raise Exception(response.text)
+
+    def get_m_objects(self, object_type='Program'):
+        body = get_m_objects.wrap(object_type)
+
+        response = self.request(body)
+        if response.status_code == 200:
+            return get_m_objects.unwrap(response)
+        else:
+            raise Exception(response.text)
+
 
     def request_campaign(self, campaign=None, lead=None):
 

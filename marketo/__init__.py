@@ -8,7 +8,7 @@ import requests
 import auth
 
 from marketo.wrapper import exceptions
-from marketo.wrapper import get_lead, get_lead_activity, request_campaign, sync_lead
+from marketo.wrapper import get_lead, get_lead_activity, get_campaigns_for_source, sync_lead, list_m_objects
 
 
 class Client:
@@ -19,19 +19,19 @@ class Client:
         self.encryption_key = encryption_key
 
     def wrap(self, body):
-        return u'<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" ' \
-               u'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' \
-               u'xmlns:wsdl="http://www.marketo.com/mktows/" ' \
-               u'xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" ' \
-               u'xmlns:ins0="http://www.marketo.com/mktows/" ' \
-               u'xmlns:ns1="http://www.marketo.com/mktows/" ' \
-               u'xmlns:mkt="http://www.marketo.com/mktows/">' \
-               u'{header}' \
-               u'<env:Body>' \
-               u'{body}' \
-               u'</env:Body>' \
-               u'</env:Envelope>'.format(header=auth.header(self.user_id, self.encryption_key),
-                                         body=body)
+        payload = u'<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" '\
+                u'xmlns:ns1="http://www.marketo.com/mktows/"> ' \
+                u'<SOAP-ENV:Header> ' \
+                u'{header} ' \
+                u'</SOAP-ENV:Header> ' \
+                u'<SOAP-ENV:Body> ' \
+                u'{body} ' \
+                u'</SOAP-ENV:Body> ' \
+	            u'</SOAP-ENV:Envelope> '.format(
+                    header=auth.header(self.user_id, self.encryption_key),
+                    body=body
+        )
+        return payload
 
     def request(self, body):
         envelope = self.wrap(body).encode("utf-8")
@@ -97,6 +97,15 @@ class Client:
         else:
             raise Exception(response.text)
 
+    def get_campaigns_for_source(self, source='MKTOWS'):
+        body = get_campaigns_for_source.wrap(source)
+
+        response = self.request(body)
+        if response.status_code == 200:
+            return get_campaigns_for_source.unwrap(response)
+        else:
+            raise Exception(response.text)
+
     def request_campaign(self, campaign=None, lead=None):
 
         if not campaign or not isinstance(campaign, (str, unicode)):
@@ -126,5 +135,13 @@ class Client:
         response = self.request(body)
         if response.status_code == 200:
             return sync_lead.unwrap(response)
+        else:
+            raise Exception(response.text)
+
+    def list_m_objects(self):
+        body = list_m_objects.wrap()
+        response = self.request(body)
+        if response.status_code == 200:
+            return list_m_objects.unwrap(response)
         else:
             raise Exception(response.text)

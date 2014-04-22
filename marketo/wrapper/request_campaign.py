@@ -1,6 +1,6 @@
 
 def wrap(campaign, lead):
-    return u'<mkt:paramsRequestCampaign>' \
+    return u'<ns1:paramsRequestCampaign>' \
            u'<source>MKTOWS</source>' \
            u'<campaignId>{campaign}</campaignId>' \
            u'<leadList>' \
@@ -9,4 +9,4 @@ def wrap(campaign, lead):
            u'<keyValue>{lead}</keyValue>' \
            u'</leadKey>' \
            u'</leadList>' \
-           u'</mkt:paramsRequestCampaign>'.format(campaign=campaign, lead=lead)
+           u'</ns1:paramsRequestCampaign>'.format(campaign=campaign, lead=lead)

@@ -10,7 +10,7 @@ import auth
 from marketo.wrapper import exceptions
 from marketo.wrapper import (
     get_lead, get_lead_activity, sync_lead,
-    get_campaigns_for_source,
+    get_campaigns_for_source, request_campaign,
     list_m_objects, get_m_objects,
 )
 
@@ -141,8 +141,8 @@ class Client:
         if not email or not isinstance(email, (str, unicode)):
             raise ValueError('Must supply lead id as a non empty string.')
 
-        if not attributes or not isinstance(attributes, tuple):
-            raise ValueError('Must supply attributes as a non empty tuple.')
+        if not attributes or not (isinstance(attributes, tuple) or isinstance(attributes, dict)):
+            raise ValueError('Must supply attributes as a non empty tuple or dict.')
 
         body = sync_lead.wrap(email, attributes)
 
